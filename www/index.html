@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <title>StudyDeck — Learn Smarter, One Card at a Time</title>
+  <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <meta name="color-scheme" content="light dark" />
+
+  <!-- Content Security Policy: allow Ionic/Ionicons CDN + inline app assets. Required for Cordova (file://) too. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' data: gap: https://ssl.gstatic.com; style-src * 'self' 'unsafe-inline'; script-src * 'self' 'unsafe-inline' 'unsafe-eval'; connect-src *; img-src * data: content:;" />
+
+  <!-- Ionic Framework (official CDN build — same markup/JS runs identically whether
+       served as the website or wrapped by Cordova for Android). Loaded from jsDelivr,
+       the CDN Ionic's own docs recommend for framework-free / vanilla-JS projects. -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core@7.8.6/css/ionic.bundle.css" />
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core@7.8.6/dist/ionic/ionic.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core@7.8.6/dist/ionic/ionic.js"></script>
+  <!-- Ionicons -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.2.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.2.2/dist/ionicons/ionicons.js"></script>
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <ion-app id="app">
+
+    <!-- ============ AUTH / WELCOME (first run) ============ -->
+    <section id="page-welcome" class="app-page welcome-page">
+      <div class="welcome-wrap">
+        <div class="welcome-badge"><ion-icon name="layers"></ion-icon></div>
+        <h1>StudyDeck</h1>
+        <p>Learn Smarter, One Card at a Time.</p>
+
+        <div class="auth-card">
+          <div class="auth-tabs">
+            <button type="button" class="auth-tab active" id="auth-tab-login" data-mode="login">Log In</button>
+            <button type="button" class="auth-tab" id="auth-tab-signup" data-mode="signup">Sign Up</button>
+          </div>
+
+          <form id="auth-form-login" class="auth-form" novalidate>
+            <ion-list lines="full">
+              <ion-item>
+                <ion-input id="login-email" type="email" label="Email" label-placement="stacked" placeholder="you@example.com" autocomplete="email"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-input id="login-password" type="password" label="Password" label-placement="stacked" placeholder="Your password" autocomplete="current-password"></ion-input>
+              </ion-item>
+            </ion-list>
+            <p class="auth-error hidden" id="login-error"></p>
+            <ion-button expand="block" shape="round" class="btn-primary" type="submit">Log In</ion-button>
+          </form>
+
+          <form id="auth-form-signup" class="auth-form hidden" novalidate>
+            <ion-list lines="full">
+              <ion-item>
+                <ion-input id="signup-name" type="text" label="Display name" label-placement="stacked" placeholder="Your name" autocomplete="name"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-input id="signup-email" type="email" label="Email" label-placement="stacked" placeholder="you@example.com" autocomplete="email"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-input id="signup-password" type="password" label="Password" label-placement="stacked" placeholder="At least 6 characters" autocomplete="new-password"></ion-input>
+              </ion-item>
+            </ion-list>
+            <p class="auth-error hidden" id="signup-error"></p>
+            <ion-button expand="block" shape="round" class="btn-primary" type="submit">Create Account</ion-button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MAIN SHELL ============ -->
+    <div id="shell" class="shell hidden">
+
+      <!-- Desktop sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">
+          <div class="brand-icon"><ion-icon name="layers"></ion-icon></div>
+          <div>
+            <div class="brand-title">StudyDeck</div>
+            <div class="brand-sub">Learn Smarter, One Card at a Time.</div>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-item active" data-page="home"><ion-icon name="home"></ion-icon><span>Home</span></button>
+          <button class="nav-item" data-page="decks"><ion-icon name="albums"></ion-icon><span>My Decks</span></button>
+          <button class="nav-item" data-page="explore"><ion-icon name="search"></ion-icon><span>Explore</span></button>
+          <button class="nav-item" data-page="progress"><ion-icon name="bar-chart"></ion-icon><span>Progress</span></button>
+          <button class="nav-item" data-page="settings"><ion-icon name="settings"></ion-icon><span>Settings</span></button>
+        </nav>
+
+        <div class="tip-card">
+          <ion-icon name="flag"></ion-icon>
+          <p>Small steps make big progress.</p>
+        </div>
+      </aside>
+
+      <!-- Main content column -->
+      <div class="main-col">
+
+        <!-- Top header (mobile) -->
+        <header class="mobile-header">
+          <div>
+            <div class="hello" id="mobile-hello">Hello, Student</div>
+            <div class="hello-sub">Keep going! You're doing great!</div>
+          </div>
+          <ion-avatar class="avatar-sm"><ion-icon name="person"></ion-icon></ion-avatar>
+        </header>
+
+        <ion-content class="app-content" id="main-content" fullscreen="true">
+
+          <!-- ============ HOME ============ -->
+          <section id="page-home" class="app-page">
+            <div class="page-inner">
+
+              <div class="topbar">
+                <ion-searchbar id="global-search" placeholder="Search decks, topics, or keywords..." class="topbar-search"></ion-searchbar>
+                <div class="topbar-actions">
+                  <ion-button fill="clear" class="icon-btn"><ion-icon name="notifications-outline"></ion-icon></ion-button>
+                  <div class="user-chip"><ion-avatar class="avatar-sm"><ion-icon name="person"></ion-icon></ion-avatar><span id="user-chip-name">Student</span><ion-icon name="chevron-down-outline"></ion-icon></div>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="hero-card">
+                  <div class="hero-text">
+                    <h1>Build Better Habits.<br/>Remember More.</h1>
+                    <p>StudyDeck helps you learn faster and smarter with simple, effective flashcards.</p>
+                    <ion-button shape="round" class="btn-primary" data-nav="explore">Explore Decks <ion-icon slot="end" name="arrow-forward"></ion-icon></ion-button>
+                  </div>
+                  <div class="hero-art"><ion-icon name="bulb"></ion-icon></div>
+                </div>
+
+                <ion-card class="progress-card">
+                  <div class="progress-card-title">Your Progress</div>
+                  <div class="ring-wrap">
+                    <svg viewBox="0 0 120 120" class="ring-svg">
+                      <circle cx="60" cy="60" r="52" class="ring-bg"/>
+                      <circle cx="60" cy="60" r="52" class="ring-fg" id="ring-fg"/>
+                    </svg>
+                    <div class="ring-label"><span id="ring-percent">0%</span><small>Overall Progress</small></div>
+                  </div>
+                  <div class="stat-rows">
+                    <div class="stat-row"><ion-icon name="albums" class="stat-ic blue"></ion-icon><div><b id="stat-decks">0</b><span>Decks Created</span></div></div>
+                    <div class="stat-row"><ion-icon name="document-text" class="stat-ic purple"></ion-icon><div><b id="stat-cards">0</b><span>Cards Studied</span></div></div>
+                    <div class="stat-row"><ion-icon name="flame" class="stat-ic orange"></ion-icon><div><b id="stat-streak">0</b><span>Day Streak</span></div></div>
+                  </div>
+                </ion-card>
+              </div>
+
+              <div class="section-head">
+                <h2>My Decks</h2>
+                <button class="link-btn" data-nav="decks">View all <ion-icon name="chevron-forward"></ion-icon></button>
+              </div>
+              <div class="deck-grid" id="home-deck-grid"></div>
+
+              <div class="grid-2 activity-row">
+                <div></div>
+                <ion-card class="activity-card">
+                  <div class="progress-card-title">Recent Activity</div>
+                  <ion-list id="activity-list" lines="none"></ion-list>
+                </ion-card>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ MY DECKS ============ -->
+          <section id="page-decks" class="app-page hidden">
+            <div class="page-inner">
+              <div class="section-head">
+                <h2>My Decks</h2>
+                <ion-button shape="round" class="btn-primary" id="btn-new-deck"><ion-icon slot="start" name="add"></ion-icon>New Deck</ion-button>
+              </div>
+              <div class="deck-grid" id="decks-grid"></div>
+            </div>
+          </section>
+
+          <!-- ============ EXPLORE ============ -->
+          <section id="page-explore" class="app-page hidden">
+            <div class="page-inner">
+              <h2>Explore</h2>
+              <ion-searchbar id="explore-search" placeholder="Search all decks and cards..." class="topbar-search"></ion-searchbar>
+              <div class="section-head" style="margin-top:1rem;">
+                <h3 style="margin:0;color:var(--text-muted);font-weight:600;">Results</h3>
+              </div>
+              <div class="deck-grid" id="explore-grid"></div>
+              <div id="explore-empty" class="empty-state hidden">
+                <ion-icon name="search"></ion-icon>
+                <p>No decks or cards match your search.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ PROGRESS ============ -->
+          <section id="page-progress" class="app-page hidden">
+            <div class="page-inner">
+              <h2>My Progress</h2>
+              <ion-segment id="progress-segment" value="overview" class="segment-pill">
+                <ion-segment-button value="overview"><ion-label>Overview</ion-label></ion-segment-button>
+                <ion-segment-button value="decks"><ion-label>Decks</ion-label></ion-segment-button>
+              </ion-segment>
+
+              <div id="progress-overview" class="progress-tab">
+                <div class="grid-2">
+                  <ion-card class="progress-card center-card">
+                    <div class="ring-wrap">
+                      <svg viewBox="0 0 120 120" class="ring-svg">
+                        <circle cx="60" cy="60" r="52" class="ring-bg"/>
+                        <circle cx="60" cy="60" r="52" class="ring-fg" id="ring-fg-2"/>
+                      </svg>
+                      <div class="ring-label"><span id="ring-percent-2">0%</span><small>Overall Progress</small></div>
+                    </div>
+                    <div class="stat-pills">
+                      <div class="stat-pill"><ion-icon name="albums"></ion-icon><b id="p-decks">0</b><span>Decks Created</span></div>
+                      <div class="stat-pill"><ion-icon name="document-text"></ion-icon><b id="p-cards">0</b><span>Cards Studied</span></div>
+                      <div class="stat-pill"><ion-icon name="flame"></ion-icon><b id="p-streak">0</b><span>Day Streak</span></div>
+                    </div>
+                  </ion-card>
+                  <ion-card class="progress-card">
+                    <div class="progress-card-title">Study Activity (last 7 days)</div>
+                    <div class="bar-chart" id="bar-chart"></div>
+                  </ion-card>
+                </div>
+              </div>
+
+              <div id="progress-decks" class="progress-tab hidden">
+                <ion-list id="progress-deck-list" lines="full"></ion-list>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ SETTINGS ============ -->
+          <section id="page-settings" class="app-page hidden">
+            <div class="page-inner">
+              <h2>Settings</h2>
+              <ion-card class="settings-card">
+                <ion-list lines="full">
+                  <ion-item>
+                    <ion-icon slot="start" name="mail-outline"></ion-icon>
+                    <ion-label>
+                      <p class="muted" style="font-size:.72rem;">Signed in as</p>
+                      <h3 id="setting-email">—</h3>
+                    </ion-label>
+                  </ion-item>
+                  <ion-item>
+                    <ion-icon slot="start" name="person-circle-outline"></ion-icon>
+                    <ion-input label="Display name" label-placement="stacked" id="setting-name" placeholder="Your name"></ion-input>
+                  </ion-item>
+                  <ion-item>
+                    <ion-icon slot="start" name="moon-outline"></ion-icon>
+                    <ion-toggle id="setting-theme" justify="space-between">Dark mode</ion-toggle>
+                  </ion-item>
+                  <ion-item>
+                    <ion-icon slot="start" name="notifications-outline"></ion-icon>
+                    <ion-toggle id="setting-reminders" checked justify="space-between">Daily study reminders</ion-toggle>
+                  </ion-item>
+                  <ion-item>
+                    <ion-icon slot="start" name="volume-medium-outline"></ion-icon>
+                    <ion-toggle id="setting-sound" checked justify="space-between">Flip sound effects</ion-toggle>
+                  </ion-item>
+                </ion-list>
+              </ion-card>
+
+              <ion-card class="settings-card">
+                <div class="progress-card-title" style="padding:1rem 1rem 0;">Data</div>
+                <ion-list lines="full">
+                  <ion-item button id="btn-export-data">
+                    <ion-icon slot="start" name="download-outline"></ion-icon>
+                    <ion-label>Export my data (JSON)</ion-label>
+                  </ion-item>
+                  <ion-item button id="btn-reset-data">
+                    <ion-icon slot="start" name="trash-outline" color="danger"></ion-icon>
+                    <ion-label color="danger">Reset all app data</ion-label>
+                  </ion-item>
+                  <ion-item button id="btn-logout">
+                    <ion-icon slot="start" name="log-out-outline"></ion-icon>
+                    <ion-label>Log out</ion-label>
+                  </ion-item>
+                </ion-list>
+              </ion-card>
+            </div>
+          </section>
+
+          <!-- ============ DECK DETAIL ============ -->
+          <section id="page-deck-detail" class="app-page hidden">
+            <div class="page-inner">
+              <button class="back-btn" id="deck-detail-back"><ion-icon name="arrow-back"></ion-icon> Back</button>
+              <div class="deck-detail-head">
+                <div>
+                  <h2 id="dd-title">Deck</h2>
+                  <p id="dd-sub" class="muted"></p>
+                </div>
+                <div class="deck-detail-actions">
+                  <ion-button shape="round" class="btn-primary" id="dd-study-btn"><ion-icon slot="start" name="play"></ion-icon>Study</ion-button>
+                  <ion-button shape="round" fill="outline" id="dd-add-card-btn"><ion-icon slot="start" name="add"></ion-icon>Add Card</ion-button>
+                  <ion-button shape="round" fill="clear" color="danger" id="dd-delete-deck-btn"><ion-icon slot="icon-only" name="trash-outline"></ion-icon></ion-button>
+                </div>
+              </div>
+              <ion-list id="dd-card-list" lines="full"></ion-list>
+              <div id="dd-empty" class="empty-state hidden">
+                <ion-icon name="document-text-outline"></ion-icon>
+                <p>No cards yet. Add your first flashcard to start studying.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ STUDY / FLASHCARD ============ -->
+          <section id="page-study" class="app-page hidden">
+            <div class="study-wrap">
+              <div class="study-header">
+                <button class="back-btn" id="study-back"><ion-icon name="arrow-back"></ion-icon></button>
+                <div class="study-title" id="study-title">Deck</div>
+                <div class="study-count" id="study-count">1 / 1</div>
+              </div>
+              <ion-progress-bar id="study-progress" value="0" class="study-progress-bar"></ion-progress-bar>
+
+              <div class="flash-card" id="flash-card">
+                <div class="flash-inner" id="flash-inner">
+                  <div class="flash-face flash-front">
+                    <span class="flash-eyebrow">Question</span>
+                    <p id="flash-front-text">Front</p>
+                    <span class="tap-hint">Tap to reveal answer <ion-icon name="chevron-down"></ion-icon></span>
+                  </div>
+                  <div class="flash-face flash-back">
+                    <span class="flash-eyebrow">Answer</span>
+                    <p id="flash-back-text">Back</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="study-controls">
+                <ion-button shape="round" fill="outline" id="study-prev" class="round-btn"><ion-icon slot="icon-only" name="chevron-back"></ion-icon></ion-button>
+                <ion-button shape="round" class="btn-primary flip-btn" id="study-flip"><ion-icon slot="start" name="sync"></ion-icon>Flip</ion-button>
+                <ion-button shape="round" fill="outline" id="study-next" class="round-btn"><ion-icon slot="icon-only" name="chevron-forward"></ion-icon></ion-button>
+              </div>
+
+              <div class="study-grade hidden" id="study-grade">
+                <ion-button expand="block" fill="outline" color="danger" id="grade-again">Still Learning</ion-button>
+                <ion-button expand="block" class="btn-primary" id="grade-know">I Knew It</ion-button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ STUDY COMPLETE ============ -->
+          <section id="page-complete" class="app-page hidden">
+            <div class="complete-wrap">
+              <ion-icon name="trophy" class="complete-trophy"></ion-icon>
+              <h2>Deck Complete!</h2>
+              <p id="complete-summary">You reviewed 0 cards.</p>
+              <ion-button expand="block" shape="round" class="btn-primary" id="complete-again">Study Again</ion-button>
+              <ion-button expand="block" shape="round" fill="clear" id="complete-home">Back to Home</ion-button>
+            </div>
+          </section>
+
+        </ion-content>
+
+        <!-- Bottom tab bar (mobile) -->
+        <ion-tab-bar class="mobile-tabbar" id="mobile-tabbar">
+          <ion-tab-button tab="home" data-page="home" class="active">
+            <ion-icon name="home"></ion-icon>
+            <ion-label>Home</ion-label>
+          </ion-tab-button>
+          <ion-tab-button tab="explore" data-page="explore">
+            <ion-icon name="search"></ion-icon>
+            <ion-label>Explore</ion-label>
+          </ion-tab-button>
+          <ion-tab-button tab="progress" data-page="progress">
+            <ion-icon name="bar-chart"></ion-icon>
+            <ion-label>Progress</ion-label>
+          </ion-tab-button>
+          <ion-tab-button tab="settings" data-page="settings">
+            <ion-icon name="person"></ion-icon>
+            <ion-label>Profile</ion-label>
+          </ion-tab-button>
+        </ion-tab-bar>
+      </div>
+    </div>
+
+    <!-- ============ MODAL: New / Edit Deck ============ -->
+    <ion-modal id="modal-deck" class="app-modal">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title id="modal-deck-title">New Deck</ion-title>
+          <ion-buttons slot="end"><ion-button id="modal-deck-close">Close</ion-button></ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <ion-list lines="full">
+          <ion-item>
+            <ion-input id="deck-name-input" label="Deck name" label-placement="stacked" placeholder="e.g. Organic Chemistry"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-select id="deck-icon-select" label="Icon" label-placement="stacked" interface="popover">
+              <ion-select-option value="hardware-chip">Hardware / CS</ion-select-option>
+              <ion-select-option value="code-slash">Code</ion-select-option>
+              <ion-select-option value="server">Database</ion-select-option>
+              <ion-select-option value="book">General</ion-select-option>
+              <ion-select-option value="flask">Science</ion-select-option>
+              <ion-select-option value="calculator">Math</ion-select-option>
+              <ion-select-option value="globe">Language</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item>
+            <ion-select id="deck-color-select" label="Color" label-placement="stacked" interface="popover">
+              <ion-select-option value="blue">Blue</ion-select-option>
+              <ion-select-option value="purple">Purple</ion-select-option>
+              <ion-select-option value="green">Green</ion-select-option>
+              <ion-select-option value="orange">Orange</ion-select-option>
+              <ion-select-option value="pink">Pink</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-list>
+
+        <div id="deck-cards-section" class="deck-cards-section">
+          <div class="section-head">
+            <h3>Cards</h3>
+            <button type="button" class="deck-add-row-btn" id="deck-add-card-row"><ion-icon name="add"></ion-icon>Add Card</button>
+          </div>
+          <div id="deck-cards-builder"></div>
+          <ion-button expand="block" fill="outline" shape="round" id="deck-add-card-row-bottom" class="deck-add-more-btn">
+            <ion-icon slot="start" name="add-circle-outline"></ion-icon>Add Another Card
+          </ion-button>
+        </div>
+
+        <ion-button expand="block" shape="round" class="btn-primary" id="deck-save-btn" style="margin-top:1.5rem;">Save Deck</ion-button>
+      </ion-content>
+    </ion-modal>
+
+    <!-- ============ MODAL: New / Edit Card ============ -->
+    <ion-modal id="modal-card" class="app-modal">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title id="modal-card-title">New Card</ion-title>
+          <ion-buttons slot="end"><ion-button id="modal-card-close">Close</ion-button></ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <ion-list lines="full">
+          <ion-item>
+            <ion-textarea id="card-front-input" label="Question (front)" label-placement="stacked" placeholder="What do you want to ask?" auto-grow="true"></ion-textarea>
+          </ion-item>
+          <ion-item>
+            <ion-textarea id="card-back-input" label="Answer (back)" label-placement="stacked" placeholder="What's the answer?" auto-grow="true"></ion-textarea>
+          </ion-item>
+        </ion-list>
+        <ion-button expand="block" shape="round" class="btn-primary" id="card-save-btn" style="margin-top:1.5rem;">Save Card</ion-button>
+      </ion-content>
+    </ion-modal>
+
+    <ion-toast id="app-toast" duration="1800" position="top"></ion-toast>
+    <ion-alert id="app-alert"></ion-alert>
+  </ion-app>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

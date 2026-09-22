@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.studydeck.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>StudyDeck</name>
+    <description>
+        StudyDeck — Learn Smarter, One Card at a Time. An Ionic flashcard study app
+        built as a single web codebase and deployed to both the browser and Android
+        via Cordova.
+    </description>
+    <author email="you@example.com" href="https://example.com">Your Name / Group Members</author>
+
+    <!-- The ENTIRE app (HTML/CSS/JS + bundled Ionic runtime) lives in www/.
+         This is the same folder that is deployed as the website, unmodified. -->
+    <content src="index.html" />
+
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-navigation href="*" />
+
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="Orientation" value="default" /> <!-- supports both portrait & landscape -->
+    <preference name="Fullscreen" value="false" />
+    <preference name="BackgroundColor" value="0xfff4f5fb" />
+    <preference name="android-minSdkVersion" value="24" />
+    <preference name="android-targetSdkVersion" value="34" />
+    <preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/icon/android/icon.png" />
+
+    <platform name="android">
+        <allow-intent href="market:*" />
+        <icon density="ldpi" src="res/icon/android/ldpi.png" />
+        <icon density="mdpi" src="res/icon/android/mdpi.png" />
+        <icon density="hdpi" src="res/icon/android/hdpi.png" />
+        <icon density="xhdpi" src="res/icon/android/xhdpi.png" />
+        <icon density="xxhdpi" src="res/icon/android/xxhdpi.png" />
+        <icon density="xxxhdpi" src="res/icon/android/xxxhdpi.png" />
+        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application" xmlns:android="http://schemas.android.com/apk/res/android">
+            <application android:usesCleartextTraffic="true" />
+        </edit-config>
+    </platform>
+</widget>
