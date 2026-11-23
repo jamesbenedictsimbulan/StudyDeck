@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: 20
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
@@ -27,7 +27,13 @@ jobs:
         run: npx cordova platform add android
 
       - name: Build debug APK
-        run: npx cordova build android
+        run: |
+          set -o pipefail
+          npx cordova build android --verbose 2>&1 | tee build.log || {
+            echo "::error title=Build failed::$(grep -iE 'error|failed|not found|what went wrong' -A3 build.log | head -40 | tr '
+' '|' )"
+            exit 1
+          }
 
       - uses: actions/upload-artifact@v4
         with:
