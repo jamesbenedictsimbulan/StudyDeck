@@ -8,8 +8,8 @@
   <meta name="msapplication-tap-highlight" content="no" />
   <meta name="color-scheme" content="light dark" />
 
-  <!-- Content Security Policy: allow Ionic/Ionicons CDN + inline app assets. Required for Cordova (file://) too. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' data: gap: https://ssl.gstatic.com; style-src * 'self' 'unsafe-inline'; script-src * 'self' 'unsafe-inline' 'unsafe-eval'; connect-src *; img-src * data: content:;" />
+  <!-- Content Security Policy: only this app and the Ionic CDN. (The Android build bundles Ionic and uses a stricter, fully offline policy.) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: blob: https://cdn.jsdelivr.net; font-src 'self' data: https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net; object-src 'none'; base-uri 'self'; form-action 'none'" />
 
   <!-- Ionic Framework (official CDN build — same markup/JS runs identically whether
        served as the website or wrapped by Cordova for Android). Loaded from jsDelivr,
@@ -22,6 +22,7 @@
   <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.2.2/dist/ionicons/ionicons.js"></script>
 
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/features.css" />
 </head>
 <body>
   <ion-app id="app">
@@ -89,6 +90,7 @@
           <button class="nav-item" data-page="decks"><ion-icon name="albums"></ion-icon><span>My Decks</span></button>
           <button class="nav-item" data-page="explore"><ion-icon name="search"></ion-icon><span>Explore</span></button>
           <button class="nav-item" data-page="progress"><ion-icon name="bar-chart"></ion-icon><span>Progress</span></button>
+          <button class="nav-item" data-page="tools"><ion-icon name="construct"></ion-icon><span>Study Tools</span></button>
           <button class="nav-item" data-page="settings"><ion-icon name="settings"></ion-icon><span>Settings</span></button>
         </nav>
 
@@ -315,6 +317,10 @@
                 <div class="study-title" id="study-title">Deck</div>
                 <div class="study-count" id="study-count">1 / 1</div>
               </div>
+              <div class="tilt-row">
+                <ion-toggle id="study-tilt" justify="space-between"><ion-icon name="phone-landscape-outline"></ion-icon> Tilt to grade</ion-toggle>
+                <p class="muted tilt-hint hidden" id="study-tilt-hint">Show the answer, then tilt your phone <b>left ~45°</b> for <b>Still Learning</b> or <b>right ~45°</b> for <b>I Knew It</b>.</p>
+              </div>
               <ion-progress-bar id="study-progress" value="0" class="study-progress-bar"></ion-progress-bar>
 
               <div class="flash-card" id="flash-card">
@@ -355,6 +361,226 @@
             </div>
           </section>
 
+          <!-- ============ STUDY TOOLS (hub) ============ -->
+          <section id="page-tools" class="app-page hidden">
+            <div class="page-inner">
+              <h2>Study Tools</h2>
+              <p class="muted">Phone sensors that make studying hands-free and more fun.</p>
+              <div class="tools-grid">
+                <div class="tool-card" data-nav="motion">
+                  <div class="deck-ic clr-blue"><ion-icon name="speedometer"></ion-icon></div>
+                  <h4>Motion Lab</h4><p>Live accelerometer and the tilt-to-grade gesture.</p>
+                </div>
+                <div class="tool-card" data-nav="snap">
+                  <div class="deck-ic clr-pink"><ion-icon name="camera"></ion-icon></div>
+                  <h4>Snap &amp; Share</h4><p>Photograph notes and share them with classmates.</p>
+                </div>
+                <div class="tool-card" data-nav="compass">
+                  <div class="deck-ic clr-green"><ion-icon name="compass"></ion-icon></div>
+                  <h4>Compass &amp; Study Spots</h4><p>Heading, GPS position and your favourite study places.</p>
+                </div>
+                <div class="tool-card" data-nav="shake">
+                  <div class="deck-ic clr-orange"><ion-icon name="pulse"></ion-icon></div>
+                  <h4>Focus Mode</h4><p>Shake to log a study marker, even with the app minimized.</p>
+                </div>
+                <div class="tool-card" data-nav="permissions">
+                  <div class="deck-ic clr-purple"><ion-icon name="shield-checkmark"></ion-icon></div>
+                  <h4>Permission Center</h4><p>See and manage everything StudyDeck can access.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ MOTION LAB ============ -->
+          <section id="page-motion" class="app-page hidden">
+            <div class="page-inner">
+              <button class="back-btn" data-nav="tools"><ion-icon name="arrow-back"></ion-icon> Study Tools</button>
+              <h2>Motion Lab</h2>
+              <p class="muted">Live accelerometer readings. No permission is needed for this sensor.</p>
+
+              <ion-card>
+                <ion-card-content>
+                  <div class="row-between">
+                    <ion-chip id="motion-status" outline="true">Stopped</ion-chip>
+                    <div>
+                      <ion-button id="motion-start" shape="round" class="btn-primary"><ion-icon slot="start" name="play"></ion-icon>Start</ion-button>
+                      <ion-button id="motion-stop" shape="round" fill="outline" disabled="true"><ion-icon slot="start" name="stop"></ion-icon>Stop</ion-button>
+                    </div>
+                  </div>
+                  <p class="auth-error hidden" id="motion-error"></p>
+                </ion-card-content>
+              </ion-card>
+
+              <div class="axis-grid">
+                <ion-card class="axis-card"><ion-card-header><ion-card-subtitle>X axis (left / right)</ion-card-subtitle><ion-card-title id="axis-x">0.00</ion-card-title></ion-card-header><ion-card-content><ion-progress-bar id="bar-x" value="0.5"></ion-progress-bar></ion-card-content></ion-card>
+                <ion-card class="axis-card"><ion-card-header><ion-card-subtitle>Y axis (up / down)</ion-card-subtitle><ion-card-title id="axis-y">0.00</ion-card-title></ion-card-header><ion-card-content><ion-progress-bar id="bar-y" value="0.5"></ion-progress-bar></ion-card-content></ion-card>
+                <ion-card class="axis-card"><ion-card-header><ion-card-subtitle>Z axis (screen in / out)</ion-card-subtitle><ion-card-title id="axis-z">0.00</ion-card-title></ion-card-header><ion-card-content><ion-progress-bar id="bar-z" value="0.5"></ion-progress-bar></ion-card-content></ion-card>
+              </div>
+
+              <ion-card>
+                <ion-card-header>
+                  <ion-card-subtitle>Tilt angle (side to side)</ion-card-subtitle>
+                  <ion-card-title id="tilt-angle">0°</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  <div class="tilt-gauge">
+                    <div class="tilt-zone tilt-zone-left">Still learning</div>
+                    <div class="tilt-zone tilt-zone-right">I know it</div>
+                    <div class="tilt-needle" id="tilt-needle"></div>
+                  </div>
+                  <p id="tilt-verdict" class="tilt-verdict">Hold your phone upright and tilt it.</p>
+                  <ion-item lines="none">
+                    <ion-toggle id="tilt-invert" justify="space-between">Swap left / right (if it feels reversed)</ion-toggle>
+                  </ion-item>
+                  <p class="muted small">Tilting <b>left ~45°</b> counts as <b>Still Learning</b>; tilting <b>right ~45°</b> counts as <b>I Knew It</b>. Turn on <i>Tilt to grade</i> while studying a deck.</p>
+                </ion-card-content>
+              </ion-card>
+
+              <ion-card>
+                <ion-card-header><ion-card-title>How the axes respond</ion-card-title></ion-card-header>
+                <ion-card-content class="small">
+                  Readings are in m/s² and <b>include gravity</b>. Lying flat, the phone reads about <b>Z ≈ +9.8</b>.
+                  Standing upright, <b>Y ≈ +9.8</b>. <b>Tilting</b> moves gravity from one axis to another (tilt right and X goes negative).
+                  <b>Moving</b> the phone briefly adds to the axis you push along. A <b>shake</b> makes all three swing fast and the total magnitude jump well above 9.8.
+                </ion-card-content>
+              </ion-card>
+            </div>
+          </section>
+
+          <!-- ============ SNAP & SHARE ============ -->
+          <section id="page-snap" class="app-page hidden">
+            <div class="page-inner">
+              <button class="back-btn" data-nav="tools"><ion-icon name="arrow-back"></ion-icon> Study Tools</button>
+              <h2>Snap &amp; Share</h2>
+              <p class="muted">Photograph handwritten notes or a textbook page and send it to a classmate.</p>
+
+              <ion-card>
+                <ion-card-content>
+                  <div class="photo-frame" id="photo-frame">
+                    <img id="photo-img" class="hidden" alt="Your captured photo" />
+                    <div id="photo-placeholder" class="photo-placeholder"><ion-icon name="image-outline"></ion-icon><span>No photo yet</span></div>
+                  </div>
+                  <p id="photo-caption-view" class="photo-caption hidden"></p>
+                  <ion-item lines="full">
+                    <ion-input id="photo-caption" label="Caption (optional)" label-placement="stacked" placeholder="e.g. Chapter 4 notes" maxlength="80"></ion-input>
+                  </ion-item>
+                  <div class="row-wrap">
+                    <ion-button id="photo-take" shape="round" class="btn-primary"><ion-icon slot="start" name="camera"></ion-icon>Take photo</ion-button>
+                    <ion-button id="photo-share" shape="round" fill="outline" disabled="true"><ion-icon slot="start" name="share-social"></ion-icon>Share</ion-button>
+                    <ion-button id="photo-clear" shape="round" fill="clear" color="danger" disabled="true"><ion-icon slot="start" name="trash-outline"></ion-icon>Discard</ion-button>
+                  </div>
+                  <div id="photo-banner" class="banner hidden"></div>
+                </ion-card-content>
+              </ion-card>
+              <p class="muted small">The photo is kept in memory only and is never saved by StudyDeck. Sharing uses Android's share sheet, and location data is stripped from the picture first.</p>
+            </div>
+          </section>
+
+          <!-- ============ COMPASS & STUDY SPOTS ============ -->
+          <section id="page-compass" class="app-page hidden">
+            <div class="page-inner">
+              <button class="back-btn" data-nav="tools"><ion-icon name="arrow-back"></ion-icon> Study Tools</button>
+              <h2>Compass &amp; Study Spots</h2>
+              <p class="muted">Heading needs no permission. Your position needs Location.</p>
+
+              <div id="compass-banner" class="banner hidden"></div>
+
+              <div class="compass-grid">
+                <ion-card>
+                  <ion-card-content class="compass-wrap">
+                    <div class="compass">
+                      <div class="compass-pointer"></div>
+                      <div class="compass-dial" id="compass-dial">
+                        <span class="cd cd-n">N</span><span class="cd cd-e">E</span><span class="cd cd-s">S</span><span class="cd cd-w">W</span>
+                      </div>
+                    </div>
+                    <div class="compass-readout"><b id="heading-deg">--°</b> <span id="heading-dir" class="muted">--</span></div>
+                  </ion-card-content>
+                </ion-card>
+
+                <ion-card>
+                  <ion-card-header><ion-card-title>Your position</ion-card-title></ion-card-header>
+                  <ion-card-content>
+                    <ion-list lines="full">
+                      <ion-item><ion-label>Latitude</ion-label><ion-note slot="end" id="pos-lat">--</ion-note></ion-item>
+                      <ion-item><ion-label>Longitude</ion-label><ion-note slot="end" id="pos-lon">--</ion-note></ion-item>
+                      <ion-item><ion-label>Accuracy</ion-label><ion-note slot="end" id="pos-acc">--</ion-note></ion-item>
+                    </ion-list>
+                    <ion-item lines="full">
+                      <ion-input id="spot-label" label="Spot name" label-placement="stacked" placeholder="e.g. Library 2nd floor" maxlength="40"></ion-input>
+                    </ion-item>
+                    <div class="row-wrap">
+                      <ion-button id="spot-save" shape="round" class="btn-primary" disabled="true"><ion-icon slot="start" name="bookmark"></ion-icon>Save study spot</ion-button>
+                      <ion-button id="compass-retry" shape="round" fill="outline" class="hidden"><ion-icon slot="start" name="refresh"></ion-icon>Try again</ion-button>
+                    </div>
+                  </ion-card-content>
+                </ion-card>
+              </div>
+
+              <ion-card>
+                <ion-card-header><ion-card-title>Saved study spots</ion-card-title></ion-card-header>
+                <ion-card-content>
+                  <ion-list id="spot-list" lines="full"></ion-list>
+                  <p id="spot-empty" class="muted small">No spots yet. Save where you studied well.</p>
+                  <p class="muted small">Spots are stored only on this device and are included in your data export.</p>
+                </ion-card-content>
+              </ion-card>
+            </div>
+          </section>
+
+          <!-- ============ FOCUS MODE (service + shake) ============ -->
+          <section id="page-shake" class="app-page hidden">
+            <div class="page-inner">
+              <button class="back-btn" data-nav="tools"><ion-icon name="arrow-back"></ion-icon> Study Tools</button>
+              <h2>Focus Mode</h2>
+              <p class="muted">A real Android foreground service watches for a shake and saves a time-stamped study marker, even while StudyDeck is minimized.</p>
+
+              <ion-card>
+                <ion-card-content>
+                  <div class="row-between">
+                    <ion-chip id="svc-status" outline="true">Service stopped</ion-chip>
+                    <div>
+                      <ion-button id="svc-start" shape="round" class="btn-primary"><ion-icon slot="start" name="play"></ion-icon>Start</ion-button>
+                      <ion-button id="svc-stop" shape="round" fill="outline" disabled="true"><ion-icon slot="start" name="stop"></ion-icon>Stop</ion-button>
+                    </div>
+                  </div>
+                  <div id="svc-banner" class="banner hidden"></div>
+                  <ion-item lines="none" class="range-item">
+                    <ion-range id="shake-sens" min="1" max="10" step="1" snaps="true" ticks="true" pin="true" label="Sensitivity" label-placement="stacked">
+                      <ion-icon slot="start" name="hand-left-outline"></ion-icon>
+                      <ion-icon slot="end" name="flash-outline"></ion-icon>
+                    </ion-range>
+                  </ion-item>
+                  <p class="muted small">Low = needs a hard shake, high = reacts to a light shake. One shake saves one marker (2-second cooldown).</p>
+                </ion-card-content>
+              </ion-card>
+
+              <ion-card>
+                <ion-card-header>
+                  <div class="row-between">
+                    <ion-card-title>Study markers</ion-card-title>
+                    <ion-button id="shake-clear" fill="clear" size="small" color="danger"><ion-icon slot="start" name="trash-outline"></ion-icon>Clear</ion-button>
+                  </div>
+                </ion-card-header>
+                <ion-card-content>
+                  <ion-list id="shake-list" lines="full"></ion-list>
+                  <p id="shake-empty" class="muted small">No markers yet. Start the service and shake your phone.</p>
+                </ion-card-content>
+              </ion-card>
+            </div>
+          </section>
+
+          <!-- ============ PERMISSION CENTER ============ -->
+          <section id="page-permissions" class="app-page hidden">
+            <div class="page-inner">
+              <button class="back-btn" data-nav="tools"><ion-icon name="arrow-back"></ion-icon> Study Tools</button>
+              <h2>Permission Center</h2>
+              <p class="muted">Everything StudyDeck can access, and why. Permissions are only requested when you first use the feature that needs them.</p>
+              <ion-card><ion-card-content><ion-list id="perm-list" lines="full"></ion-list></ion-card-content></ion-card>
+              <p class="muted small">This list refreshes automatically when you come back from Android settings.</p>
+            </div>
+          </section>
+
         </ion-content>
 
         <!-- Bottom tab bar (mobile) -->
@@ -370,6 +596,10 @@
           <ion-tab-button tab="progress" data-page="progress">
             <ion-icon name="bar-chart"></ion-icon>
             <ion-label>Progress</ion-label>
+          </ion-tab-button>
+          <ion-tab-button tab="tools" data-page="tools">
+            <ion-icon name="construct"></ion-icon>
+            <ion-label>Tools</ion-label>
           </ion-tab-button>
           <ion-tab-button tab="settings" data-page="settings">
             <ion-icon name="person"></ion-icon>
@@ -454,7 +684,10 @@
     <ion-alert id="app-alert"></ion-alert>
   </ion-app>
 
+  <!-- Injected by Cordova on Android; harmlessly absent on the website -->
+  <script src="cordova.js"></script>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/features.js"></script>
 </body>
 </html>

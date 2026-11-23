@@ -13,7 +13,8 @@ const STORAGE_KEYS = {
   decks: 'studydeck_decks',
   progress: 'studydeck_progress',
   settings: 'studydeck_settings',
-  activity: 'studydeck_activity'
+  activity: 'studydeck_activity',
+  spots: 'studydeck_spots'
 };
 
 /* ---------- generic helpers ---------- */
@@ -286,7 +287,7 @@ function searchDecksAndCards(query) {
 
 /* ---------- reset / export ---------- */
 function resetAllData() {
-  [STORAGE_KEYS.decks, STORAGE_KEYS.progress, STORAGE_KEYS.settings, STORAGE_KEYS.activity]
+  [STORAGE_KEYS.decks, STORAGE_KEYS.progress, STORAGE_KEYS.settings, STORAGE_KEYS.activity, STORAGE_KEYS.spots]
     .forEach(k => localStorage.removeItem(scopedKey(k)));
 }
 
@@ -296,6 +297,7 @@ function exportAllData() {
     progress: getProgress(),
     settings: getSettings(),
     activity: getActivity(),
+    studySpots: loadData(scopedKey(STORAGE_KEYS.spots), []),
     exportedAt: new Date().toISOString()
   };
   return JSON.stringify(bundle, null, 2);

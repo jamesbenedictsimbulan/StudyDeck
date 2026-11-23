@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        id="cordova-plugin-studydeck-native" version="1.0.0">
+  <name>StudyDeck Native</name>
+  <description>Runtime-permission state, foreground shake-detection service, and share intent for StudyDeck.</description>
+  <license>Apache-2.0</license>
+
+  <js-module src="www/studydeck.js" name="StudyNative">
+    <clobbers target="StudyNative" />
+  </js-module>
+
+  <platform name="android">
+    <config-file target="res/xml/config.xml" parent="/*">
+      <feature name="StudyNative">
+        <param name="android-package" value="com.studydeck.nativeplugin.StudyNative" />
+      </feature>
+    </config-file>
+
+    <config-file target="AndroidManifest.xml" parent="/manifest">
+      <!-- Foreground service that keeps shake detection alive (normal permissions, no prompt) -->
+      <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+      <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+      <!-- Runtime permissions -->
+      <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+      <uses-permission android:name="android.permission.CAMERA" />
+      <!-- Haptic feedback when a shake is detected (normal permission, no prompt) -->
+      <uses-permission android:name="android.permission.VIBRATE" />
+    </config-file>
+
+    <config-file target="AndroidManifest.xml" parent="/manifest/application">
+      <service android:name="com.studydeck.nativeplugin.ShakeService"
+               android:exported="false"
+               android:foregroundServiceType="specialUse">
+        <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                  android:value="Continuous accelerometer monitoring to detect a user shake gesture and log a study marker" />
+      </service>
+      <provider android:name="androidx.core.content.FileProvider"
+                android:authorities="${applicationId}.studydeck.fileprovider"
+                android:exported="false"
+                android:grantUriPermissions="true">
+        <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
+                   android:resource="@xml/studydeck_file_paths" />
+      </provider>
+    </config-file>
+
+    <source-file src="src/android/StudyNative.java" target-dir="src/com/studydeck/nativeplugin" />
+    <source-file src="src/android/ShakeService.java" target-dir="src/com/studydeck/nativeplugin" />
+    <resource-file src="src/android/res/xml/studydeck_file_paths.xml" target="res/xml/studydeck_file_paths.xml" />
+  </platform>
+</plugin>

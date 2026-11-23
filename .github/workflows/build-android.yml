@@ -20,6 +20,7 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      # cordova-android 13 generates its Gradle wrapper with the system Gradle, which must be 8.x.
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.7
@@ -27,13 +28,21 @@ jobs:
       - name: Install Android SDK packages
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;33.0.2" "platforms;android-34"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;34.0.0" "build-tools;33.0.2" "platforms;android-34"
 
       - name: Install dependencies
         run: npm install
 
-      - name: Add Android platform
-        run: npx cordova platform add android
+      - name: Add Android platform and plugins
+        run: |
+          set -o pipefail
+          {
+            npx cordova platform add android &&
+            npx cordova plugin add cordova-plugin-camera@7.0.0 cordova-plugin-geolocation@5.0.0 ./native/cordova-plugin-studydeck-native
+          } 2>&1 | tee setup.log || {
+            echo "::error title=Setup failed::$(tail -40 setup.log | tr '\n' '|')"
+            exit 1
+          }
 
       - name: Build debug APK
         run: |
@@ -42,6 +51,14 @@ jobs:
             echo "::error title=Build failed::$(grep -iE 'error|failed|not found|what went wrong' -A3 build.log | head -40 | tr '\n' '|')"
             exit 1
           }
+
+      - name: Report manifest permissions
+        if: always()
+        run: |
+          M=platforms/android/app/src/main/AndroidManifest.xml
+          if [ -f "$M" ]; then
+            echo "::notice title=Manifest permissions::$(grep -o 'uses-permission[^>]*android:name="[^"]*"' "$M" | sed 's/.*name="//;s/"//' | tr '\n' ' ')"
+          fi
 
       - uses: actions/upload-artifact@v4
         with:

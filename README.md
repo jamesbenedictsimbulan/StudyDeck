@@ -142,3 +142,40 @@ Then in `index.html`, swap the CDN `<link>`/`<script>` tags for local paths:
 <script type="module" src="lib/ionicons/ionicons/ionicons.esm.js"></script>
 <script nomodule src="lib/ionicons/ionicons/ionicons.js"></script>
 ```
+
+
+---
+
+## Study Tools (sensors, permissions, service)
+
+| Screen | What it does | Needs permission? |
+|---|---|---|
+| Motion Lab | Live accelerometer x/y/z, Start/Stop, tilt gauge (left ~45 deg = Still Learning, right ~45 deg = I Knew It) | No |
+| Tilt to grade | Toggle on the study screen: tilt after revealing the answer to grade the card | No |
+| Snap & Share | Camera photo + Android share sheet (implicit `ACTION_SEND` intent); EXIF/location is stripped | Camera |
+| Compass & Study Spots | Live heading, live GPS, saved study spots | Location (heading: none) |
+| Focus Mode | Native foreground service + shake detection + persistent marker history | Notifications (Android 13+) |
+| Permission Center | State of every permission (granted / denied / permanently denied / not requested) + settings shortcut | - |
+
+### Plugins
+
+| Plugin | Version | Purpose |
+|---|---|---|
+| `cordova-plugin-camera` | 7.0.0 | Take the photo |
+| `cordova-plugin-geolocation` | 5.0.0 | `navigator.geolocation` on Android |
+| `cordova-plugin-studydeck-native` (in `native/`) | 1.0.0 | Permission states, foreground service, shake detection, share intent |
+
+Accelerometer and compass use the WebView's standard `devicemotion` / `deviceorientationabsolute`
+events, so no (deprecated) motion/orientation plugins are needed.
+
+### Build (local)
+
+```
+npm install
+npm run cordova:add-android
+npm run cordova:add-plugins
+npm run cordova:build
+```
+Requires JDK 17, Gradle 8.x, Android SDK platform 34 and build-tools 34.0.0.
+`scripts/after-prepare.js` bundles Ionic into the APK (fully offline, strict CSP) and strips unneeded
+manifest permissions (such as `INTERNET`).

@@ -37,6 +37,7 @@ function init() {
   wireStudyPage();
   wireDeckModal();
   wireCardModal();
+  if (window.Features) Features.init();
 
   renderAll();
 
@@ -129,18 +130,25 @@ function wireNavigation() {
   });
 }
 
+const TOOL_PAGES = ['motion', 'snap', 'compass', 'shake', 'permissions'];
+
 function goToPage(pageName) {
-  const pages = ['home', 'decks', 'explore', 'progress', 'settings', 'deck-detail', 'study', 'complete'];
+  const pages = ['home', 'decks', 'explore', 'progress', 'settings', 'deck-detail', 'study', 'complete', 'tools'].concat(TOOL_PAGES);
+  const previous = state.currentPage;
   pages.forEach(p => {
     const el = document.getElementById('page-' + p);
     if (el) el.classList.toggle('hidden', p !== pageName);
   });
   state.currentPage = pageName;
 
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === pageName));
-  document.querySelectorAll('.mobile-tabbar ion-tab-button').forEach(b => b.classList.toggle('active', b.dataset.page === pageName));
+  // Tool sub-pages keep the "Tools" tab highlighted.
+  const navName = TOOL_PAGES.includes(pageName) ? 'tools' : pageName;
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === navName));
+  document.querySelectorAll('.mobile-tabbar ion-tab-button').forEach(b => b.classList.toggle('active', b.dataset.page === navName));
 
   document.getElementById('main-content').scrollToTop(150);
+
+  if (window.Features && previous !== pageName) Features.onNavigate(previous, pageName);
 
   if (pageName === 'home') renderHome();
   if (pageName === 'decks') renderDecksPage();

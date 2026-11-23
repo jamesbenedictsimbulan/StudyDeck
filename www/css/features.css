@@ -1,0 +1,85 @@
+/* StudyDeck — features.css : Study Tools pages (sensors, camera, compass, focus mode, permissions) */
+
+.small{font-size:.8rem;line-height:1.45;}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.row-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;}
+
+/* tools hub */
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;margin-top:18px;}
+.tool-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s ease;}
+.tool-card:active{transform:scale(.98);}
+.tool-card h4{margin:12px 0 4px;color:var(--text);}
+.tool-card p{margin:0;color:var(--muted);font-size:.85rem;}
+.clr-purple{background:var(--primary-100);color:var(--primary);}
+.clr-orange{background:var(--orange-100);color:var(--orange);}
+.clr-green{background:var(--green-100);color:var(--green);}
+.clr-pink{background:var(--pink-100);color:var(--pink);}
+
+/* banners */
+.banner{margin-top:12px;padding:12px 14px;border-radius:var(--radius-md);border:1px solid var(--line);background:var(--primary-100);color:var(--text);}
+.banner p{margin:0 0 8px;font-size:.88rem;line-height:1.4;}
+.banner ion-button{margin-right:6px;}
+.banner-warn{background:var(--orange-100);border-color:var(--orange);color:#7a4a00;}
+.banner-danger{background:#fde8e8;border-color:#ef4444;color:#7f1d1d;}
+[data-theme="dark"] .banner-warn{background:#3a2a0b;color:#fde2a8;}
+[data-theme="dark"] .banner-danger{background:#3b1414;color:#fecaca;}
+.auth-error{color:#ef4444;font-size:.85rem;margin:10px 0 0;}
+
+/* motion lab */
+.axis-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0 12px;}
+.axis-card{margin:8px 0;}
+.axis-card ion-card-title{font-variant-numeric:tabular-nums;font-size:1.5rem;}
+.tilt-gauge{position:relative;height:56px;border-radius:14px;overflow:hidden;
+  background:linear-gradient(90deg,rgba(239,68,68,.2) 0 25%,var(--primary-100) 25% 75%,rgba(16,185,129,.22) 75% 100%);}
+.tilt-zone{position:absolute;top:0;bottom:0;display:flex;align-items:center;font-size:.72rem;font-weight:700;padding:0 10px;color:var(--muted);}
+.tilt-zone-left{left:0;}
+.tilt-zone-right{right:0;}
+.tilt-needle{position:absolute;top:0;bottom:0;left:50%;width:5px;margin-left:-2px;background:var(--primary);border-radius:3px;transition:left .08s linear;}
+.tilt-verdict{text-align:center;font-weight:700;margin:12px 0;color:var(--muted);}
+.tilt-verdict.v-learning{color:#ef4444;}
+.tilt-verdict.v-know{color:var(--green);}
+.tilt-row{margin-bottom:8px;}
+.tilt-row ion-toggle{--handle-background-checked:#fff;}
+.tilt-hint{font-size:.78rem;margin:4px 0 0;}
+
+/* snap & share */
+.photo-frame{width:100%;aspect-ratio:4/3;max-height:46vh;border-radius:var(--radius-md);background:var(--primary-100);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.photo-frame img{width:100%;height:100%;object-fit:contain;}
+.photo-placeholder{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--muted);}
+.photo-placeholder ion-icon{font-size:2.4rem;}
+.photo-caption{font-weight:600;margin:10px 0 0;word-break:break-word;}
+
+/* compass */
+.compass-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;}
+.compass-wrap{display:flex;flex-direction:column;align-items:center;}
+.compass{position:relative;width:min(220px,60vw);height:min(220px,60vw);margin:14px auto 10px;}
+.compass-pointer{position:absolute;top:-12px;left:50%;transform:translateX(-50%);z-index:2;
+  border-left:9px solid transparent;border-right:9px solid transparent;border-top:16px solid var(--primary);}
+.compass-dial{position:absolute;inset:0;border-radius:50%;border:4px solid var(--line);
+  background:radial-gradient(circle,var(--card) 58%,var(--primary-100) 100%);transition:transform .08s linear;}
+.compass-dial::before{content:"";position:absolute;left:50%;top:14%;width:4px;height:36%;margin-left:-2px;border-radius:2px;background:#ef4444;}
+.compass-dial::after{content:"";position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--text);}
+.cd{position:absolute;font-weight:800;font-size:1rem;color:var(--text);}
+.cd-n{top:6px;left:50%;transform:translateX(-50%);color:#ef4444;}
+.cd-e{right:10px;top:50%;transform:translateY(-50%);}
+.cd-s{bottom:6px;left:50%;transform:translateX(-50%);}
+.cd-w{left:10px;top:50%;transform:translateY(-50%);}
+.compass-readout{font-size:1.6rem;display:flex;gap:10px;align-items:baseline;}
+.compass-readout .muted{font-size:1rem;font-weight:700;}
+
+/* focus mode + permission center */
+.range-item{--padding-start:0;margin-top:10px;}
+.perm-side{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;}
+#perm-list ion-item{--padding-top:8px;--padding-bottom:8px;}
+
+@media (max-width:640px){
+  .axis-grid{grid-template-columns:1fr;}
+  .compass-grid{grid-template-columns:1fr;}
+}
+/* landscape phones: put the three axis cards side by side again and keep things compact */
+@media (max-height:480px) and (orientation:landscape){
+  .axis-grid{grid-template-columns:repeat(3,1fr);}
+  .compass-grid{grid-template-columns:1fr 1fr;}
+  .compass{width:150px;height:150px;}
+  .photo-frame{max-height:55vh;}
+}

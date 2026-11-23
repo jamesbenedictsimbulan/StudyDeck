@@ -1,11 +1,12 @@
 {
   "name": "studydeck",
   "displayName": "StudyDeck",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "StudyDeck — an Ionic flashcard study web app and Android application built from one shared codebase.",
   "scripts": {
     "start": "npx http-server www -p 8100 -o",
     "cordova:add-android": "cordova platform add android",
+    "cordova:add-plugins": "cordova plugin add cordova-plugin-camera@7.0.0 cordova-plugin-geolocation@5.0.0 ./native/cordova-plugin-studydeck-native",
     "cordova:build": "cordova build android",
     "cordova:run": "cordova run android",
     "cordova:build:release": "cordova build android --release"
@@ -16,8 +17,10 @@
     ]
   },
   "devDependencies": {
+    "@ionic/core": "7.8.6",
     "cordova": "^12.0.0",
-    "cordova-android": "^12.0.1",
-    "http-server": "^14.1.1"
+    "cordova-android": "13.0.0",
+    "http-server": "^14.1.1",
+    "ionicons": "7.2.2"
   }
 }
