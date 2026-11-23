@@ -24,6 +24,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.7
+          # A cache saved by the old cordova-android 12 build (AGP 7) corrupts resource merging on AGP 8.
+          cache-disabled: true
 
       - name: Install Android SDK packages
         run: |
