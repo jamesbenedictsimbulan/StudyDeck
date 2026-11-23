@@ -30,8 +30,7 @@ jobs:
         run: |
           set -o pipefail
           npx cordova build android --verbose 2>&1 | tee build.log || {
-            echo "::error title=Build failed::$(grep -iE 'error|failed|not found|what went wrong' -A3 build.log | head -40 | tr '
-' '|' )"
+            echo "::error title=Build failed::$(grep -iE 'error|failed|not found|what went wrong' -A3 build.log | head -40 | tr '\n' '|')"
             exit 1
           }
 
