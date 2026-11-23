@@ -1,0 +1,16 @@
+{
+  "name": "cordova-plugin-studydeck-native",
+  "version": "1.0.0",
+  "description": "Runtime-permission state, foreground shake-detection service, and share intent for StudyDeck.",
+  "cordova": {
+    "id": "cordova-plugin-studydeck-native",
+    "platforms": [
+      "android"
+    ]
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "license": "Apache-2.0"
+}
